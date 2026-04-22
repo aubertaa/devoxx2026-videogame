@@ -21,7 +21,6 @@ import {
   PHYSICS,
   SPAWN,
   PATTERNS,
-  SCORING,
   type PatternId,
 } from '../config/gameConfig';
 import {

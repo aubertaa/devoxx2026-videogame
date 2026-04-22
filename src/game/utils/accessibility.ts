@@ -91,9 +91,10 @@ export function shouldReduceMotion(): boolean {
 
 /**
  * Get animation duration based on reduced motion preference
+ * Returns 0 to disable animations when reduced motion is preferred
  */
 export function getAnimationDuration(baseDuration: number): number {
-  return prefersReducedMotion ? baseDuration * 0.1 : baseDuration;
+  return prefersReducedMotion ? 0 : baseDuration;
 }
 
 /**

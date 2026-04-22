@@ -54,7 +54,7 @@ export class ScoreManager {
   /**
    * Subtract XP from hitting a bug
    */
-  hitBug(bugName: string): number {
+  hitBug(_bugName: string): number {
     const xpLoss = SCORING.BUG_PENALTY;
     this.xp = Math.max(0, this.xp + xpLoss); // Can't go below 0
     this.bugsHit++;

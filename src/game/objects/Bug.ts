@@ -1,4 +1,4 @@
-import { GameObjects, Math as PhaserMath, Physics, Scene, Tweens } from 'phaser';
+import { GameObjects, Math as PhaserMath, Physics, Scene } from 'phaser';
 import { COLORS, BUGS } from '../config/gameConfig';
 import { shouldReduceMotion, getAnimationDuration } from '../utils/accessibility';
 

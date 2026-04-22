@@ -1,4 +1,4 @@
-import { GameObjects, Math as PhaserMath, Physics, Scene, Tweens } from 'phaser';
+import { GameObjects, Physics, Scene } from 'phaser';
 import { PATTERNS, COLORS, type PatternId } from '../config/gameConfig';
 import { shouldReduceMotion, getAnimationDuration } from '../utils/accessibility';
 
@@ -24,7 +24,8 @@ export class Pattern extends GameObjects.Container {
   ) {
     super(scene, x, y);
 
-    this.patternConfig = PATTERNS.find((p) => p.id === patternId) || PATTERNS[0];
+    const foundPattern = PATTERNS.find((p) => p.id === patternId);
+    this.patternConfig = foundPattern ?? PATTERNS[0];
     this.isBonus = isBonus;
 
     this.createVisuals();

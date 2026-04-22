@@ -1,4 +1,4 @@
-import { GameObjects, Physics, Scene, Tweens } from 'phaser';
+import { GameObjects, Physics, Scene } from 'phaser';
 import { COLORS, GAME_CONFIG, PHYSICS } from '../config/gameConfig';
 import { shouldReduceMotion, getAnimationDuration } from '../utils/accessibility';
 
@@ -147,17 +147,15 @@ export class Player extends GameObjects.Container {
 
   /**
    * Play hit animation when colliding with bug
+   * Uses single state change instead of repeated flashes for accessibility
    */
   playHitAnimation(): void {
     const duration = getAnimationDuration(300);
 
-    // Flash red
-    this.scene.tweens.add({
-      targets: this.playerGraphics,
-      alpha: 0.3,
-      duration: duration / 3,
-      yoyo: true,
-      repeat: 2,
+    // Single alpha change (no repeated flashing - accessibility safe)
+    this.playerGraphics.setAlpha(0.3);
+    this.scene.time.delayedCall(duration, () => {
+      this.playerGraphics.setAlpha(1);
     });
   }
 
