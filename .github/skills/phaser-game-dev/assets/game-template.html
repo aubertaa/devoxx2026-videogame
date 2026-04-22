@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phaser Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <script>
+        // Game configuration
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            parent: 'game-container',
+            backgroundColor: '#2d2d44',
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: false
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        const game = new Phaser.Game(config);
+
+        function preload() {
+            // Load assets here
+            // this.load.image('key', 'path/to/image.png');
+            // this.load.spritesheet('key', 'path/to/spritesheet.png', { frameWidth: 32, frameHeight: 32 });
+        }
+
+        function create() {
+            // Initialize game objects and setup here
+            
+            // Example: Add text
+            this.add.text(400, 300, 'Phaser Game', {
+                fontSize: '48px',
+                fill: '#ffffff'
+            }).setOrigin(0.5);
+        }
+
+        function update(time, delta) {
+            // Game logic updates here (called every frame)
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+{
+  "lockfileVersion": 1,
+  "packageSlugs": [
+    "@global/devoxx-standards"
+  ],
+  "agents": [
+    "agents_md",
+    "copilot",
+    "packmind"
+  ],
+  "installedAt": "2026-04-22T12:28:13.939Z",
+  "artifacts": {
+    "command:build-for-production": {
+      "name": "Build for production",
+      "type": "command",
+      "id": "35263d6c-e023-4f30-857f-4adaf90f889c",
+      "version": 1,
+      "spaceId": "3351bb0b-e3d4-4a8d-9af1-e4398c19fef7",
+      "packageIds": [
+        "61cfa3c1-8da6-467e-afdf-e3d481b6b196"
+      ],
+      "files": [
+        {
+          "path": ".packmind/commands/build-for-production.md",
+          "agent": "packmind"
+        },
+        {
+          "path": ".github/prompts/build-for-production.prompt.md",
+          "agent": "copilot"
+        }
+      ]
+    },
+    "command:run-dev-server": {
+      "name": "Run dev server",
+      "type": "command",
+      "id": "4bdf27fe-9f35-4568-bdc2-89299e640532",
+      "version": 1,
+      "spaceId": "3351bb0b-e3d4-4a8d-9af1-e4398c19fef7",
+      "packageIds": [
+        "61cfa3c1-8da6-467e-afdf-e3d481b6b196"
+      ],
+      "files": [
+        {
+          "path": ".packmind/commands/run-dev-server.md",
+          "agent": "packmind"
+        },
+        {
+          "path": ".github/prompts/run-dev-server.prompt.md",
+          "agent": "copilot"
+        }
+      ]
+    },
+    "command:create-phaser-scene": {
+      "name": "Create phaser scene",
+      "type": "command",
+      "id": "8d16b9c1-6b92-47be-b012-6a4dc52e711f",
+      "version": 1,
+      "spaceId": "3351bb0b-e3d4-4a8d-9af1-e4398c19fef7",
+      "packageIds": [
+        "61cfa3c1-8da6-467e-afdf-e3d481b6b196"
+      ],
+      "files": [
+        {
+          "path": ".packmind/commands/create-phaser-scene.md",
+          "agent": "packmind"
+        },
+        {
+          "path": ".github/prompts/create-phaser-scene.prompt.md",
+          "agent": "copilot"
+        }
+      ]
+    },
+    "standard:vue-phaser-communication": {
+      "name": "Vue-Phaser Communication",
+      "type": "standard",
+      "id": "b9d1276b-1cab-4cb6-86a1-b6e1cd0f8832",
+      "version": 1,
+      "spaceId": "3351bb0b-e3d4-4a8d-9af1-e4398c19fef7",
+      "packageIds": [
+        "61cfa3c1-8da6-467e-afdf-e3d481b6b196"
+      ],
+      "files": [
+        {
+          "path": ".packmind/standards/vue-phaser-communication.md",
+          "agent": "packmind"
+        },
+        {
+          "path": ".github/instructions/packmind-vue-phaser-communication.instructions.md",
+          "agent": "copilot"
+        }
+      ]
+    },
+    "standard:phaser-scene-structure": {
+      "name": "Phaser Scene Structure",
+      "type": "standard",
+      "id": "f6da3e23-dc6b-45fa-9948-541ea5af57c1",
+      "version": 1,
+      "spaceId": "3351bb0b-e3d4-4a8d-9af1-e4398c19fef7",
+      "packageIds": [
+        "61cfa3c1-8da6-467e-afdf-e3d481b6b196"
+      ],
+      "files": [
+        {
+          "path": ".packmind/standards/phaser-scene-structure.md",
+          "agent": "packmind"
+        },
+        {
+          "path": ".github/instructions/packmind-phaser-scene-structure.instructions.md",
+          "agent": "copilot"
+        }
+      ]
+    }
+  }
+}

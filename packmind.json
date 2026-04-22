@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "@global/devoxx-standards": "*"
+  },
+  "agents": [
+    "agents_md",
+    "copilot"
+  ]
+}
