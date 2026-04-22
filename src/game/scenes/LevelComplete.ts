@@ -1,6 +1,7 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import { COLORS, COLORS_HEX, GAME_CONFIG, LEVELS } from '../config/gameConfig';
+import { shouldReduceMotion, getAnimationDuration, announce } from '../utils/accessibility';
 
 interface LevelCompleteData {
     level: number;
@@ -83,7 +84,7 @@ export class LevelComplete extends Scene
         }).setOrigin(0.5).setDepth(100);
 
         // Continue text
-        this.continueText = this.add.text(centerX, centerY + 140, 'Continuing...', {
+        this.continueText = this.add.text(centerX, centerY + 140, 'Press SPACE or ENTER to continue', {
             fontFamily: 'Arial',
             fontSize: '20px',
             color: COLORS_HEX.DEVOXX_WHITE,
@@ -95,9 +96,13 @@ export class LevelComplete extends Scene
             this.continueToGame();
         });
 
-        // Allow early skip with space or click
+        // Allow early skip with Space, Enter, or click
         this.input.keyboard?.on('keydown-SPACE', this.continueToGame, this);
+        this.input.keyboard?.on('keydown-ENTER', this.continueToGame, this);
         this.input.on('pointerdown', this.continueToGame, this);
+
+        // Announce for screen readers
+        announce(`Level ${this.levelData.level} complete! Next: ${nextLevelName}. Press Space to continue.`, 'assertive');
 
         EventBus.emit('current-scene-ready', this);
     }

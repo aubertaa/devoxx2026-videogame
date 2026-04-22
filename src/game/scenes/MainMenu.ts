@@ -2,6 +2,7 @@ import { GameObjects, Scene } from 'phaser';
 
 import { EventBus } from '../EventBus';
 import { COLORS, COLORS_HEX, GAME_CONFIG } from '../config/gameConfig';
+import { shouldReduceMotion, getAnimationDuration, announce } from '../utils/accessibility';
 
 export class MainMenu extends Scene
 {
@@ -9,6 +10,7 @@ export class MainMenu extends Scene
     title: GameObjects.Text;
     subtitle: GameObjects.Text;
     instruction: GameObjects.Text;
+    focusIndicator: GameObjects.Graphics;
 
     constructor ()
     {
@@ -44,25 +46,44 @@ export class MainMenu extends Scene
         }).setOrigin(0.5).setDepth(100);
 
         // Instruction text with pulsing animation
-        this.instruction = this.add.text(centerX, centerY + 120, 'Press SPACE or Click to Start', {
+        this.instruction = this.add.text(centerX, centerY + 120, 'Press SPACE or ENTER to Start', {
             fontFamily: 'Arial',
             fontSize: '24px',
             color: COLORS_HEX.DEVOXX_WHITE,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
-        // Pulsing animation for instruction
-        this.tweens.add({
-            targets: this.instruction,
-            alpha: { from: 1, to: 0.5 },
-            duration: 800,
-            yoyo: true,
-            repeat: -1
-        });
+        // Visible focus indicator around instruction
+        this.focusIndicator = this.add.graphics();
+        this.focusIndicator.lineStyle(3, COLORS.DEVOXX_ORANGE, 1);
+        const bounds = this.instruction.getBounds();
+        this.focusIndicator.strokeRoundedRect(
+            bounds.x - 15,
+            bounds.y - 10,
+            bounds.width + 30,
+            bounds.height + 20,
+            8
+        );
+        this.focusIndicator.setDepth(99);
 
-        // Input handlers
+        // Pulsing animation for instruction (respects reduced motion preference)
+        if (!shouldReduceMotion()) {
+            this.tweens.add({
+                targets: [this.instruction, this.focusIndicator],
+                alpha: { from: 1, to: 0.5 },
+                duration: getAnimationDuration(800),
+                yoyo: true,
+                repeat: -1
+            });
+        }
+
+        // Input handlers - Space and Enter to start
         this.input.keyboard?.on('keydown-SPACE', this.changeScene, this);
+        this.input.keyboard?.on('keydown-ENTER', this.changeScene, this);
         this.input.on('pointerdown', this.changeScene, this);
+
+        // Announce for screen readers
+        announce('Main menu. Press Space or Enter to start', 'polite');
 
         EventBus.emit('current-scene-ready', this);
     }

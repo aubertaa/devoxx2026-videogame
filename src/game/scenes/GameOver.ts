@@ -1,6 +1,7 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 import { COLORS, COLORS_HEX, GAME_CONFIG, LEVELS } from '../config/gameConfig';
+import { shouldReduceMotion, getAnimationDuration, announce } from '../utils/accessibility';
 
 interface GameOverData {
     score?: number;
@@ -88,31 +89,49 @@ export class GameOver extends Scene
         }).setOrigin(0.5).setDepth(100);
 
         // Restart instruction
-        this.instructionText = this.add.text(centerX, centerY + 160, 'Press SPACE to Restart', {
+        this.instructionText = this.add.text(centerX, centerY + 160, 'Press SPACE or ENTER to Restart\nESC for Main Menu', {
             fontFamily: 'Arial',
             fontSize: '24px',
             color: COLORS_HEX.DEVOXX_WHITE,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
 
-        // Pulsing animation for instruction
-        this.tweens.add({
-            targets: this.instructionText,
-            alpha: { from: 1, to: 0.5 },
-            duration: 800,
-            yoyo: true,
-            repeat: -1
-        });
+        // Pulsing animation for instruction (respects reduced motion preference)
+        if (!shouldReduceMotion()) {
+            this.tweens.add({
+                targets: this.instructionText,
+                alpha: { from: 1, to: 0.5 },
+                duration: getAnimationDuration(800),
+                yoyo: true,
+                repeat: -1
+            });
+        }
 
-        // Input handlers
-        this.input.keyboard?.on('keydown-SPACE', this.changeScene, this);
-        this.input.on('pointerdown', this.changeScene, this);
+        // Input handlers - Space/Enter to restart, Escape to main menu
+        this.input.keyboard?.on('keydown-SPACE', this.restartGame, this);
+        this.input.keyboard?.on('keydown-ENTER', this.restartGame, this);
+        this.input.keyboard?.on('keydown-ESC', this.goToMainMenu, this);
+        this.input.on('pointerdown', this.restartGame, this);
+
+        // Announce for screen readers
+        const statusMessage = won ? 'You won!' : 'Game over!';
+        announce(`${statusMessage} Final score: ${score} XP. Level ${level}, ${levelName}. ${patterns} patterns collected. Press Space or Enter to restart, or Escape for main menu.`, 'assertive');
         
         EventBus.emit('current-scene-ready', this);
     }
 
-    changeScene ()
+    restartGame ()
+    {
+        this.scene.start('Game');
+    }
+
+    goToMainMenu ()
     {
         this.scene.start('MainMenu');
+    }
+
+    changeScene ()
+    {
+        this.restartGame();
     }
 }

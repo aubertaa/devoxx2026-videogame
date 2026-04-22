@@ -28,6 +28,8 @@ import {
   initAccessibility,
   announceGameEvent,
   cleanupAccessibility,
+  shouldReduceMotion,
+  getAnimationDuration,
 } from '../utils/accessibility';
 
 /**
@@ -59,6 +61,8 @@ export class Game extends Scene {
   // Input
   jumpKey!: Input.Keyboard.Key;
   pauseKey!: Input.Keyboard.Key;
+  resumeKey!: Input.Keyboard.Key;
+  quitKey!: Input.Keyboard.Key;
 
   // Game state
   isPaused = false;
@@ -154,6 +158,9 @@ export class Game extends Scene {
    * Create floating code symbols in background
    */
   private createBackgroundDecorations(): void {
+    // Skip animated decorations if user prefers reduced motion
+    if (shouldReduceMotion()) return;
+
     const symbols = ['{ }', '< />', '( )', '[ ]', '//'];
     const { WIDTH, HEIGHT, GROUND_HEIGHT } = GAME_CONFIG;
 
@@ -170,7 +177,7 @@ export class Game extends Scene {
       text.setAlpha(0.15);
       text.setDepth(-5);
 
-      // Slow drift animation
+      // Slow drift animation (safe: < 3 flashes/second)
       this.tweens.add({
         targets: text,
         x: x - WIDTH - 100,
@@ -293,15 +300,22 @@ export class Game extends Scene {
     pauseText.setOrigin(0.5);
     pauseText.setStroke('#000000', 6);
 
-    // Instructions
-    const instructions = this.add.text(0, 40, 'Press ESC to resume', {
+    // Instructions for resume and quit
+    const resumeInstr = this.add.text(0, 40, 'Press ENTER or ESC to resume', {
       fontSize: '20px',
       color: COLORS_HEX.DEVOXX_ORANGE,
       fontFamily: 'Arial, sans-serif',
     });
-    instructions.setOrigin(0.5);
+    resumeInstr.setOrigin(0.5);
 
-    this.pauseOverlay.add([bg, pauseText, instructions]);
+    const quitInstr = this.add.text(0, 70, 'Press Q to quit to menu', {
+      fontSize: '18px',
+      color: COLORS_HEX.DEVOXX_WHITE,
+      fontFamily: 'Arial, sans-serif',
+    });
+    quitInstr.setOrigin(0.5);
+
+    this.pauseOverlay.add([bg, pauseText, resumeInstr, quitInstr]);
     this.pauseOverlay.setDepth(200);
     this.pauseOverlay.setVisible(false);
   }
@@ -329,6 +343,12 @@ export class Game extends Scene {
 
     // Pause with Escape
     this.pauseKey = this.input.keyboard!.addKey(Input.Keyboard.KeyCodes.ESC);
+
+    // Resume with Enter (when paused)
+    this.resumeKey = this.input.keyboard!.addKey(Input.Keyboard.KeyCodes.ENTER);
+
+    // Quit to menu with Q (when paused)
+    this.quitKey = this.input.keyboard!.addKey(Input.Keyboard.KeyCodes.Q);
 
     // Jump on pointer down (click/touch)
     this.input.on('pointerdown', () => {
@@ -534,18 +554,22 @@ export class Game extends Scene {
   }
 
   /**
-   * Visual feedback for level up
+   * Visual feedback for level up (respects reduced motion preference)
    */
   private flashLevelUp(): void {
+    // Skip flash animation if user prefers reduced motion
+    if (shouldReduceMotion()) return;
+
     const flash = this.add.graphics();
     flash.fillStyle(COLORS.DEVOXX_ORANGE, 0.3);
     flash.fillRect(0, 0, GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT);
     flash.setDepth(150);
 
+    // Single fade-out animation (no flashing - safe for photosensitivity)
     this.tweens.add({
       targets: flash,
       alpha: 0,
-      duration: 500,
+      duration: getAnimationDuration(500),
       onComplete: () => flash.destroy(),
     });
   }
@@ -602,7 +626,16 @@ export class Game extends Scene {
       this.togglePause();
     }
 
-    if (this.isPaused) return;
+    // When paused: Enter to resume, Q to quit
+    if (this.isPaused) {
+      if (Input.Keyboard.JustDown(this.resumeKey)) {
+        this.togglePause();
+      }
+      if (Input.Keyboard.JustDown(this.quitKey)) {
+        this.quitToMenu();
+      }
+      return;
+    }
 
     // Handle jump input
     if (Input.Keyboard.JustDown(this.jumpKey)) {
@@ -644,6 +677,17 @@ export class Game extends Scene {
         bug.destroy();
       }
     });
+  }
+
+  /**
+   * Quit to main menu (from pause)
+   */
+  private quitToMenu(): void {
+    // Cleanup
+    EventBus.off('level-up', this.onLevelUp, this);
+    cleanupAccessibility();
+
+    this.scene.start('MainMenu');
   }
 
   /**

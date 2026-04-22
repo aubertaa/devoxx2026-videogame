@@ -19,7 +19,7 @@ const phasermsg = () => {
 }
 
 export default defineConfig({
-    base: './',
+    base: '/devoxx2026-videogame/',
     plugins: [
         vue(),
         phasermsg()
