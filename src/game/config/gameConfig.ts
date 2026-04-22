@@ -46,8 +46,8 @@ export const GAME_CONFIG = {
 
 // Physics constants
 export const PHYSICS = {
-  GRAVITY: 800,
-  JUMP_VELOCITY: -450,
+  GRAVITY: 600,
+  JUMP_VELOCITY: -400,
   BASE_SCROLL_SPEED: 200,
   SPEED_INCREMENT: 0.1, // 10% per level
 } as const;
@@ -58,7 +58,7 @@ export const SCORING = {
   BONUS_PATTERN_XP: 15, // Self-referential bonus
   BUG_PENALTY: -20,
   XP_PER_LEVEL: 100,
-  MAX_LEVEL: 4,
+  MAX_LEVEL: Infinity, // Unlimited levels!
 } as const;
 
 // Spawn configuration

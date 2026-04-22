@@ -126,6 +126,14 @@ export class Pattern extends GameObjects.Container {
     return this.patternConfig.name;
   }
 
+  getPatternDescription(): string {
+    return this.patternConfig.description;
+  }
+
+  getPatternColor(): number {
+    return this.patternConfig.color;
+  }
+
   isPatternBonus(): boolean {
     return this.isBonus;
   }

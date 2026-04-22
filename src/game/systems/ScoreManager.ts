@@ -69,19 +69,18 @@ export class ScoreManager {
   }
 
   /**
-   * Calculate level based on XP
+   * Calculate level based on XP (unlimited levels)
    */
   private calculateLevel(): number {
-    const calculatedLevel = Math.floor(this.xp / SCORING.XP_PER_LEVEL) + 1;
-    return Math.min(calculatedLevel, SCORING.MAX_LEVEL);
+    return Math.floor(this.xp / SCORING.XP_PER_LEVEL) + 1;
   }
 
   /**
-   * Handle level up
+   * Handle level up (unlimited levels)
    */
   private levelUp(newLevel: number): void {
     this.level = newLevel;
-    const levelConfig = LEVELS[newLevel - 1];
+    const levelConfig = this.getLevelConfig();
 
     // Announce level up
     announceGameEvent('level_up', { level: newLevel });
@@ -117,12 +116,9 @@ export class ScoreManager {
   }
 
   /**
-   * Get XP needed for next level
+   * Get XP needed for next level (always shows progress to next level)
    */
   getXPForNextLevel(): number {
-    if (this.level >= SCORING.MAX_LEVEL) {
-      return 0; // Max level reached
-    }
     return this.level * SCORING.XP_PER_LEVEL - this.xp;
   }
 
@@ -130,18 +126,33 @@ export class ScoreManager {
    * Get XP progress percentage to next level
    */
   getLevelProgress(): number {
-    if (this.level >= SCORING.MAX_LEVEL) {
-      return 100;
-    }
     const xpInCurrentLevel = this.xp % SCORING.XP_PER_LEVEL;
     return (xpInCurrentLevel / SCORING.XP_PER_LEVEL) * 100;
   }
 
   /**
-   * Get current level config
+   * Get current level config (cycles through defined levels, then generates for higher)
    */
   getLevelConfig(): (typeof LEVELS)[number] {
-    return LEVELS[this.level - 1];
+    const levelIndex = this.level - 1;
+    
+    // If level is within defined LEVELS, use it
+    if (levelIndex < LEVELS.length) {
+      return LEVELS[levelIndex];
+    }
+    
+    // For levels beyond defined ones, generate dynamically
+    const lastLevel = LEVELS[LEVELS.length - 1];
+    const extraLevels = levelIndex - LEVELS.length + 1;
+    
+    return {
+      id: this.level,
+      name: `Master Lvl ${this.level}`,
+      description: `You've transcended to legendary craftsmanship!`,
+      xpRequired: this.level * SCORING.XP_PER_LEVEL,
+      speedMultiplier: Math.min(lastLevel.speedMultiplier + (extraLevels * 0.1), 3.0), // Cap speed at 3x
+      spawnMultiplier: Math.min(lastLevel.spawnMultiplier + (extraLevels * 0.1), 2.5), // Cap spawn at 2.5x
+    };
   }
 
   /**

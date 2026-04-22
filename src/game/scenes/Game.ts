@@ -40,7 +40,7 @@ export class Game extends Scene {
   camera!: Cameras.Scene2D.Camera;
   backgroundTiles: GameObjects.TileSprite[] = [];
   ground!: GameObjects.TileSprite;
-  groundBody!: Physics.Arcade.StaticGroup;
+  groundCollider!: GameObjects.Rectangle;
 
   // Game objects
   player!: Player;
@@ -205,7 +205,7 @@ export class Game extends Scene {
     groundGraphics.generateTexture('ground_tile', 64, GROUND_HEIGHT);
     groundGraphics.destroy();
 
-    // Create scrolling ground
+    // Create scrolling ground visual
     this.ground = this.add.tileSprite(
       WIDTH / 2,
       HEIGHT - GROUND_HEIGHT / 2,
@@ -215,16 +215,16 @@ export class Game extends Scene {
     );
     this.ground.setDepth(0);
 
-    // Create static physics body for ground collision
-    this.groundBody = this.physics.add.staticGroup();
-    const groundCollider = this.groundBody.create(
+    // Create simple static rectangle for ground collision
+    this.groundCollider = this.add.rectangle(
       WIDTH / 2,
       HEIGHT - GROUND_HEIGHT / 2,
-      undefined
-    ) as Physics.Arcade.Sprite;
-    groundCollider.setVisible(false);
-    groundCollider.setSize(WIDTH, GROUND_HEIGHT);
-    groundCollider.refreshBody();
+      WIDTH,
+      GROUND_HEIGHT,
+      0x000000,
+      0 // invisible
+    );
+    this.physics.add.existing(this.groundCollider, true); // true = static
   }
 
   /**
@@ -232,7 +232,8 @@ export class Game extends Scene {
    */
   private createPlayer(): void {
     const { PLAYER_START_X, GROUND_HEIGHT } = GAME_CONFIG;
-    const playerY = GAME_CONFIG.HEIGHT - GROUND_HEIGHT - 20;
+    // Position player on top of ground (center of player sprite above ground line)
+    const playerY = GAME_CONFIG.HEIGHT - GROUND_HEIGHT - 30;
 
     this.player = new Player(this, PLAYER_START_X, playerY);
   }
@@ -362,7 +363,7 @@ export class Game extends Scene {
    */
   private setupCollisions(): void {
     // Player collides with ground
-    this.physics.add.collider(this.player, this.groundBody);
+    this.physics.add.collider(this.player, this.groundCollider);
 
     // Player overlaps with patterns (collectibles)
     this.physics.add.overlap(
@@ -433,18 +434,12 @@ export class Game extends Scene {
 
     this.patternSpawnCount++;
 
-    // Every 4th pattern is a bonus pattern (self-referential from CodeAnalyzer)
-    const isBonus = this.patternSpawnCount % 4 === 0;
+    // All patterns are bonus patterns now!
+    const isBonus = true;
 
     let patternId: PatternId;
-    if (isBonus) {
-      // Use CodeAnalyzer to get pattern type from actual codebase snippets
-      patternId = CodeAnalyzer.getBonusPatternId();
-    } else {
-      // Random pattern type for normal patterns
-      const patternIndex = PhaserMath.Between(0, PATTERNS.length - 1);
-      patternId = PATTERNS[patternIndex].id;
-    }
+    // Use CodeAnalyzer to get pattern type from actual codebase snippets
+    patternId = CodeAnalyzer.getBonusPatternId();
 
     // Random Y position (above ground, reachable by jump)
     const minY = 200;
@@ -481,20 +476,116 @@ export class Game extends Scene {
     patternObj: GameObjects.GameObject
   ): void {
     const pattern = patternObj as Pattern;
+    const isBonus = pattern.isPatternBonus();
 
     // Add XP
     this.scoreManager.collectPattern(
       pattern.getPatternId(),
       pattern.getPatternName(),
-      pattern.isPatternBonus()
+      isBonus
     );
 
     // Visual feedback
     this.player.playCollectAnimation();
+
+    // Show bonus congrats popup if it's a bonus pattern
+    if (isBonus) {
+      this.showBonusCongrats(
+        pattern.getPatternName(),
+        pattern.getPatternDescription(),
+        pattern.getPatternColor()
+      );
+    }
+
     pattern.collect();
 
     // Update UI
     this.updateUI();
+  }
+
+  /**
+   * Show congratulations popup for bonus pattern
+   */
+  private showBonusCongrats(name: string, description: string, color: number): void {
+    const { WIDTH } = GAME_CONFIG;
+    const centerX = WIDTH / 2;
+    const centerY = 200;
+
+    // Create container for popup
+    const popup = this.add.container(centerX, centerY - 50);
+    popup.setDepth(150);
+    popup.setAlpha(0);
+
+    // Background panel
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.85);
+    bg.fillRoundedRect(-200, -60, 400, 120, 16);
+    bg.lineStyle(3, color, 1);
+    bg.strokeRoundedRect(-200, -60, 400, 120, 16);
+    popup.add(bg);
+
+    // Star/bonus icon
+    const star = this.add.text(0, -35, '⭐ BONUS! ⭐', {
+      fontSize: '20px',
+      color: '#FFD700',
+      fontFamily: 'Arial, sans-serif',
+      fontStyle: 'bold',
+    });
+    star.setOrigin(0.5);
+    popup.add(star);
+
+    // Pattern name
+    const nameText = this.add.text(0, -5, name, {
+      fontSize: '24px',
+      color: `#${color.toString(16).padStart(6, '0')}`,
+      fontFamily: 'Arial, sans-serif',
+      fontStyle: 'bold',
+    });
+    nameText.setOrigin(0.5);
+    popup.add(nameText);
+
+    // Description (truncated if too long)
+    const shortDesc = description.length > 50 ? description.substring(0, 47) + '...' : description;
+    const descText = this.add.text(0, 30, shortDesc, {
+      fontSize: '14px',
+      color: '#FFFFFF',
+      fontFamily: 'Arial, sans-serif',
+      wordWrap: { width: 380 },
+      align: 'center',
+    });
+    descText.setOrigin(0.5);
+    popup.add(descText);
+
+    // XP bonus indicator
+    const xpText = this.add.text(0, 52, '+15 XP', {
+      fontSize: '16px',
+      color: '#4CAF50',
+      fontFamily: 'Arial, sans-serif',
+      fontStyle: 'bold',
+    });
+    xpText.setOrigin(0.5);
+    popup.add(xpText);
+
+    // Animate in
+    this.tweens.add({
+      targets: popup,
+      alpha: 1,
+      y: centerY,
+      duration: 300,
+      ease: 'Back.easeOut',
+    });
+
+    // Animate out after delay
+    this.time.delayedCall(2000, () => {
+      this.tweens.add({
+        targets: popup,
+        alpha: 0,
+        y: centerY - 30,
+        duration: 400,
+        ease: 'Quad.easeIn',
+        onComplete: () => popup.destroy(),
+      });
+    });
   }
 
   /**
