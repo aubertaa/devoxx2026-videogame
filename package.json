@@ -1,42 +1,60 @@
 {
-  "name": "template-vue-ts",
-  "description": "A Phaser 3 TypeScript project template that demonstrates Vue communication and uses Vite for bundling.",
-  "version": "1.3.0",
+  "name": "craft-runner-devoxx2026",
+  "description": "Craft Runner - An endless runner game about collecting software craftsmanship patterns. Devoxx France 2026 Edition.",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/phaserjs/template-vue-ts.git"
+    "url": "git+https://github.com/aubertaa/devoxx2026-videogame.git"
   },
-  "author": "Phaser Studio <support@phaser.io> (https://phaser.io/)",
+  "author": "Devoxx France 2026",
   "license": "MIT",
   "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
   "bugs": {
-    "url": "https://github.com/phaserjs/template-vue-ts/issues"
+    "url": "https://github.com/aubertaa/devoxx2026-videogame/issues"
   },
-  "homepage": "https://github.com/phaserjs/template-vue-ts#readme",
+  "homepage": "https://aubertaa.github.io/devoxx2026-videogame/",
   "keywords": [
     "phaser",
-    "phaser3",
+    "phaser4",
     "typescript",
     "vue",
-    "vite"
+    "vite",
+    "devoxx",
+    "craftsmanship",
+    "endless-runner",
+    "accessible-game",
+    "rgaa"
   ],
   "scripts": {
     "dev": "node log.js dev & vite --config vite/config.dev.mjs",
     "build": "node log.js build & vite build --config vite/config.prod.mjs",
     "dev-nolog": "vite --config vite/config.dev.mjs",
-    "build-nolog": "vite build --config vite/config.prod.mjs"
+    "build-nolog": "vite build --config vite/config.prod.mjs",
+    "test": "vitest",
+    "test:ci": "vitest run --coverage",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/"
   },
   "dependencies": {
     "phaser": "4.0.0",
     "vue": "3.5.13"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/node": "^20.11.20",
-    "terser": "^5.31.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.0",
     "@vitejs/plugin-vue": "^5.2.2",
+    "@vitest/coverage-v8": "^4.1.5",
     "@vue/tsconfig": "^0.7.0",
+    "eslint": "^10.2.1",
+    "eslint-plugin-vue": "^10.9.0",
+    "prettier": "^3.8.3",
+    "terser": "^5.31.0",
     "typescript": "~5.7.2",
     "vite": "^6.3.1",
+    "vitest": "^4.1.5",
     "vue-tsc": "^2.2.8"
   }
 }
