@@ -1,30 +1,112 @@
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
+import { COLORS, COLORS_HEX, GAME_CONFIG, LEVELS } from '../config/gameConfig';
+
+interface GameOverData {
+    score?: number;
+    level?: number;
+    patterns?: number;
+    won?: boolean;
+}
 
 export class GameOver extends Scene
 {
     camera: Phaser.Cameras.Scene2D.Camera;
-    background: Phaser.GameObjects.Image;
-    gameOverText : Phaser.GameObjects.Text;
+    background: Phaser.GameObjects.Rectangle;
+    titleText: Phaser.GameObjects.Text;
+    scoreText: Phaser.GameObjects.Text;
+    levelText: Phaser.GameObjects.Text;
+    patternsText: Phaser.GameObjects.Text;
+    instructionText: Phaser.GameObjects.Text;
 
     constructor ()
     {
         super('GameOver');
     }
 
-    create ()
+    create (data: GameOverData)
     {
-        this.camera = this.cameras.main
-        this.camera.setBackgroundColor(0xff0000);
+        const centerX = GAME_CONFIG.WIDTH / 2;
+        const centerY = GAME_CONFIG.HEIGHT / 2;
+        
+        const score = data?.score ?? 0;
+        const level = data?.level ?? 1;
+        const patterns = data?.patterns ?? 0;
+        const won = data?.won ?? false;
 
-        this.background = this.add.image(512, 384, 'background');
-        this.background.setAlpha(0.5);
+        this.camera = this.cameras.main;
+        
+        // Background color based on win/lose
+        const bgColor = won ? COLORS.DEVOXX_BLUE : COLORS.BUG_RED;
+        this.background = this.add.rectangle(centerX, centerY, GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT, bgColor);
 
-        this.gameOverText = this.add.text(512, 384, 'Game Over', {
-            fontFamily: 'Arial Black', fontSize: 64, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+        // Title text - different for win/lose
+        const titleMessage = won ? 'YOU WON!' : 'GAME OVER';
+        const titleColor = won ? COLORS_HEX.DEVOXX_ORANGE : COLORS_HEX.DEVOXX_WHITE;
+        
+        this.titleText = this.add.text(centerX, centerY - 150, titleMessage, {
+            fontFamily: 'Arial Black',
+            fontSize: '72px',
+            color: titleColor,
+            stroke: COLORS_HEX.DEVOXX_BLACK,
+            strokeThickness: 8,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
+
+        // Get level name
+        const levelConfig = LEVELS[level - 1] ?? LEVELS[0];
+        const levelName = levelConfig.name;
+
+        // Score display
+        this.scoreText = this.add.text(centerX, centerY - 40, `Final XP: ${score}`, {
+            fontFamily: 'Arial',
+            fontSize: '36px',
+            color: COLORS_HEX.DEVOXX_WHITE,
+            stroke: COLORS_HEX.DEVOXX_BLACK,
+            strokeThickness: 4,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // Level display
+        this.levelText = this.add.text(centerX, centerY + 20, `Level: ${level} - ${levelName}`, {
+            fontFamily: 'Arial',
+            fontSize: '28px',
+            color: COLORS_HEX.DEVOXX_WHITE,
+            stroke: COLORS_HEX.DEVOXX_BLACK,
+            strokeThickness: 3,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // Patterns collected
+        this.patternsText = this.add.text(centerX, centerY + 70, `Patterns Collected: ${patterns}`, {
+            fontFamily: 'Arial',
+            fontSize: '24px',
+            color: COLORS_HEX.DEVOXX_ORANGE,
+            stroke: COLORS_HEX.DEVOXX_BLACK,
+            strokeThickness: 2,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // Restart instruction
+        this.instructionText = this.add.text(centerX, centerY + 160, 'Press SPACE to Restart', {
+            fontFamily: 'Arial',
+            fontSize: '24px',
+            color: COLORS_HEX.DEVOXX_WHITE,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // Pulsing animation for instruction
+        this.tweens.add({
+            targets: this.instructionText,
+            alpha: { from: 1, to: 0.5 },
+            duration: 800,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Input handlers
+        this.input.keyboard?.on('keydown-SPACE', this.changeScene, this);
+        this.input.on('pointerdown', this.changeScene, this);
         
         EventBus.emit('current-scene-ready', this);
     }

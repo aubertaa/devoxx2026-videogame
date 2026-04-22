@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import { GameObjects, Math as PhaserMath, Physics, Scene, Tweens } from 'phaser';
 import { PATTERNS, COLORS, type PatternId } from '../config/gameConfig';
 import { shouldReduceMotion, getAnimationDuration } from '../utils/accessibility';
 
@@ -8,15 +8,15 @@ type PatternConfig = (typeof PATTERNS)[number];
  * Pattern collectible class
  * Represents software craftsmanship patterns that give XP when collected
  */
-export class Pattern extends Phaser.GameObjects.Container {
-  private body!: Phaser.Physics.Arcade.Body;
+export class Pattern extends GameObjects.Container {
+  private body!: Physics.Arcade.Body;
   private patternConfig: PatternConfig;
-  private graphics!: Phaser.GameObjects.Graphics;
-  private label!: Phaser.GameObjects.Text;
+  private graphics!: GameObjects.Graphics;
+  private label!: GameObjects.Text;
   private isBonus: boolean;
 
   constructor(
-    scene: Phaser.Scene,
+    scene: Scene,
     x: number,
     y: number,
     patternId: PatternId,
@@ -72,7 +72,7 @@ export class Pattern extends Phaser.GameObjects.Container {
    * Setup physics body
    */
   private setupPhysics(): void {
-    this.body = this.body as Phaser.Physics.Arcade.Body;
+    this.body = this.body as Physics.Arcade.Body;
     this.body.setSize(36, 36);
     this.body.setOffset(-18, -18);
     this.body.setAllowGravity(false);

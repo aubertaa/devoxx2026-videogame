@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import { GameObjects, Physics, Scene, Tweens } from 'phaser';
 import { COLORS, GAME_CONFIG, PHYSICS } from '../config/gameConfig';
 import { shouldReduceMotion, getAnimationDuration } from '../utils/accessibility';
 
@@ -6,12 +6,12 @@ import { shouldReduceMotion, getAnimationDuration } from '../utils/accessibility
  * Player class - GitHub Octocat character
  * Handles movement, jump mechanics, and visual representation
  */
-export class Player extends Phaser.GameObjects.Container {
-  private body!: Phaser.Physics.Arcade.Body;
-  private playerGraphics!: Phaser.GameObjects.Graphics;
+export class Player extends GameObjects.Container {
+  private body!: Physics.Arcade.Body;
+  private playerGraphics!: GameObjects.Graphics;
   private isJumping = false;
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y);
 
     this.createPlayerSprite();
@@ -62,7 +62,7 @@ export class Player extends Phaser.GameObjects.Container {
    * Setup physics body
    */
   private setupPhysics(): void {
-    this.body = this.body as Phaser.Physics.Arcade.Body;
+    this.body = this.body as Physics.Arcade.Body;
     this.body.setSize(28, 36);
     this.body.setOffset(-14, -18);
     this.body.setCollideWorldBounds(true);
@@ -141,7 +141,7 @@ export class Player extends Phaser.GameObjects.Container {
   /**
    * Get physics body for collision detection
    */
-  getBody(): Phaser.Physics.Arcade.Body {
+  getBody(): Physics.Arcade.Body {
     return this.body;
   }
 

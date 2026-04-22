@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import { GameObjects, Math as PhaserMath, Physics, Scene, Tweens } from 'phaser';
 import { COLORS, BUGS } from '../config/gameConfig';
 import { shouldReduceMotion, getAnimationDuration } from '../utils/accessibility';
 
@@ -8,19 +8,19 @@ type BugConfig = (typeof BUGS)[number];
  * Bug enemy class
  * Represents software bugs that reduce XP when hit
  */
-export class Bug extends Phaser.GameObjects.Container {
-  private body!: Phaser.Physics.Arcade.Body;
+export class Bug extends GameObjects.Container {
+  private body!: Physics.Arcade.Body;
   private bugConfig: BugConfig;
-  private graphics!: Phaser.GameObjects.Graphics;
-  private label!: Phaser.GameObjects.Text;
+  private graphics!: GameObjects.Graphics;
+  private label!: GameObjects.Text;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, bugType?: string) {
+  constructor(scene: Scene, x: number, y: number, bugType?: string) {
     super(scene, x, y);
 
     // Random bug type if not specified
     const bugIndex = bugType
       ? BUGS.findIndex((b) => b.id === bugType)
-      : Phaser.Math.Between(0, BUGS.length - 1);
+      : PhaserMath.Between(0, BUGS.length - 1);
     this.bugConfig = BUGS[bugIndex >= 0 ? bugIndex : 0];
 
     this.createVisuals();
@@ -86,7 +86,7 @@ export class Bug extends Phaser.GameObjects.Container {
    * Setup physics body
    */
   private setupPhysics(): void {
-    this.body = this.body as Phaser.Physics.Arcade.Body;
+    this.body = this.body as Physics.Arcade.Body;
     this.body.setSize(32, 32);
     this.body.setOffset(-16, -16);
     this.body.setAllowGravity(false);

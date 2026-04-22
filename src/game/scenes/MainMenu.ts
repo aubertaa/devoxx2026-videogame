@@ -1,13 +1,14 @@
 import { GameObjects, Scene } from 'phaser';
 
 import { EventBus } from '../EventBus';
+import { COLORS, COLORS_HEX, GAME_CONFIG } from '../config/gameConfig';
 
 export class MainMenu extends Scene
 {
-    background: GameObjects.Image;
-    logo: GameObjects.Image;
+    background: GameObjects.Rectangle;
     title: GameObjects.Text;
-    logoTween: Phaser.Tweens.Tween | null;
+    subtitle: GameObjects.Text;
+    instruction: GameObjects.Text;
 
     constructor ()
     {
@@ -16,61 +17,58 @@ export class MainMenu extends Scene
 
     create ()
     {
-        this.background = this.add.image(512, 384, 'background');
+        const centerX = GAME_CONFIG.WIDTH / 2;
+        const centerY = GAME_CONFIG.HEIGHT / 2;
 
-        this.logo = this.add.image(512, 300, 'logo').setDepth(100);
+        // Background with Devoxx blue
+        this.background = this.add.rectangle(centerX, centerY, GAME_CONFIG.WIDTH, GAME_CONFIG.HEIGHT, COLORS.DEVOXX_BLUE);
 
-        this.title = this.add.text(512, 460, 'Main Menu', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+        // Main title with Devoxx orange
+        this.title = this.add.text(centerX, centerY - 80, 'Craft Runner', {
+            fontFamily: 'Arial Black',
+            fontSize: '64px',
+            color: COLORS_HEX.DEVOXX_ORANGE,
+            stroke: COLORS_HEX.DEVOXX_BLACK,
+            strokeThickness: 6,
             align: 'center'
         }).setOrigin(0.5).setDepth(100);
+
+        // Subtitle
+        this.subtitle = this.add.text(centerX, centerY, 'Devoxx 2026', {
+            fontFamily: 'Arial Black',
+            fontSize: '32px',
+            color: COLORS_HEX.DEVOXX_WHITE,
+            stroke: COLORS_HEX.DEVOXX_BLACK,
+            strokeThickness: 4,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // Instruction text with pulsing animation
+        this.instruction = this.add.text(centerX, centerY + 120, 'Press SPACE or Click to Start', {
+            fontFamily: 'Arial',
+            fontSize: '24px',
+            color: COLORS_HEX.DEVOXX_WHITE,
+            align: 'center'
+        }).setOrigin(0.5).setDepth(100);
+
+        // Pulsing animation for instruction
+        this.tweens.add({
+            targets: this.instruction,
+            alpha: { from: 1, to: 0.5 },
+            duration: 800,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // Input handlers
+        this.input.keyboard?.on('keydown-SPACE', this.changeScene, this);
+        this.input.on('pointerdown', this.changeScene, this);
 
         EventBus.emit('current-scene-ready', this);
     }
     
     changeScene ()
     {
-        if (this.logoTween)
-        {
-            this.logoTween.stop();
-            this.logoTween = null;
-        }
-
         this.scene.start('Game');
-    }
-
-    moveLogo (vueCallback: ({ x, y }: { x: number, y: number }) => void)
-    {
-        if (this.logoTween)
-        {
-            if (this.logoTween.isPlaying())
-            {
-                this.logoTween.pause();
-            }
-            else
-            {
-                this.logoTween.play();
-            }
-        } 
-        else
-        {
-            this.logoTween = this.tweens.add({
-                targets: this.logo,
-                x: { value: 750, duration: 3000, ease: 'Back.easeInOut' },
-                y: { value: 80, duration: 1500, ease: 'Sine.easeOut' },
-                yoyo: true,
-                repeat: -1,
-                onUpdate: () => {
-                    if (vueCallback)
-                    {
-                        vueCallback({
-                            x: Math.floor(this.logo.x),
-                            y: Math.floor(this.logo.y)
-                        });
-                    }
-                }
-            });
-        }
     }
 }
