@@ -631,13 +631,17 @@ export class Game extends Scene {
     // Increase scroll speed
     this.currentScrollSpeed = PHYSICS.BASE_SCROLL_SPEED * data.speedMultiplier;
 
-    // Update all active patterns and bugs with new speed
-    this.patterns.getChildren().forEach((obj) => {
-      (obj as Pattern).setScrollSpeed(this.currentScrollSpeed);
-    });
-    this.bugs.getChildren().forEach((obj) => {
-      (obj as Bug).setScrollSpeed(this.currentScrollSpeed);
-    });
+    // Update all active patterns and bugs with new speed (if groups exist)
+    if (this.patterns) {
+      this.patterns.getChildren().forEach((obj) => {
+        (obj as Pattern).setScrollSpeed(this.currentScrollSpeed);
+      });
+    }
+    if (this.bugs) {
+      this.bugs.getChildren().forEach((obj) => {
+        (obj as Bug).setScrollSpeed(this.currentScrollSpeed);
+      });
+    }
 
     // Visual level up feedback
     this.flashLevelUp();
